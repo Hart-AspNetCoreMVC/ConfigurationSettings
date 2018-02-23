@@ -22,6 +22,11 @@ namespace ConfurationSettings
         // Types of middleware are: content generating, short-circuiting, request editing, and response editing
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+//            below sets configurations based on the environment. For more complex configs, build separate config methods for each by adding the env to the method name
+//                example ConfigureDevelopmentServices() will contain methods only for dev env
+            // if these individual methods become too fat, you can also break up the config into separate env specific classes ex. StartupDevelopment 
+            //will contain settings for just the dev env; when separating configs out into classes, must change program file to  .UseStartup(nameof(<namespace>))
+            //so asp.net knows to look for class names that reflect the dev env
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
