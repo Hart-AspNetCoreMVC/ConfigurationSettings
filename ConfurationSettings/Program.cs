@@ -17,9 +17,49 @@ namespace ConfurationSettings
             BuildWebHost(args).Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+
+//        DEFAULT CONFIGURATION CALLED BY THE RUNTIME -- BELOW IS THE CONTENTS OF .CREATEdEFAULTBUILDER METHOD
+//        ====================================================
+        //        public static IWebHost BuildWebHost(string[] args) =>
+        //            WebHost.CreateDefaultBuilder(args)
+        //                .UseStartup<Startup>()
+        //                .Build();
+
+        
+//        EVERYTHING THAT IS ENCAPSULATED IN THE DEFAULT BUILDER ABOVE
+//===================================================================
+        public static IWebHost BuildWebHost(string[] args)
+        {
+
+            return new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureAppConfiguration((hostingContext, config) => {
+                    var env = hostingContext.HostingEnvironment;
+                    config.AddJsonFile("appsettings.json",
+                            optional: true, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json",
+                            optional: true, reloadOnChange: true);
+                    config.AddEnvironmentVariables();
+                    if (args != null)
+                    {
+                        config.AddCommandLine(args);
+                    }
+                })
+                .ConfigureLogging((hostingContext, logging) => {
+                    logging.AddConfiguration(
+                        hostingContext.Configuration.GetSection("Logging"));
+                    logging.AddConsole();
+                    logging.AddDebug();
+                })
+                .UseIISIntegration()
+                .UseDefaultServiceProvider((context, options) => {
+                    options.ValidateScopes =
+                        context.HostingEnvironment.IsDevelopment();
+                })
+                //identifies that class that will be used for app-specific configuration, this inits the startup class and returns the object
                 .UseStartup<Startup>()
                 .Build();
+        }
     }
 }
